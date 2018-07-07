@@ -1,4 +1,9 @@
 #!/bin/bash
+TIMEOUT=5
+echo -n Sleeping for $TIMEOUT seconds...
+for ((i=$TIMEOUT;--i>=0;)); do sleep 1; echo -n " $i"; done
+cd $HOME
+
 echo ENVIRONMENT VARIABLES:==============================
 set
 echo ====================================================
@@ -56,9 +61,9 @@ echo "Game:$GAME"
 echo "$ENGINE" >> $ENGINE_INI
 echo "$GAME" >> $GAME_INI
 
-if [[ $DRY_RUN ]]
-then
-        echo unbuffer /home/steam/Binaries/Win64/KFGameSteamServer.bin.x86_64 "$@"
-else
-        unbuffer /home/steam/Binaries/Win64/KFGameSteamServer.bin.x86_64 "$@"
-fi
+# Replace Startup Variables
+MODIFIED_STARTUP=`eval echo $(echo ${STARTUP} | sed -e 's/{{/${/g' -e 's/}}/}/g')`
+echo ":/home/container$ ${MODIFIED_STARTUP}"
+
+# Run the Server
+${MODIFIED_STARTUP}
