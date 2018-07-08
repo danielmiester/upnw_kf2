@@ -9,11 +9,11 @@ echo steam steam/license note '' | debconf-set-selections && \
 apt-get install -y steamcmd
 RUN useradd -d /home/steam -m steam
 
-USER container
-ENV  USER container
-ENV  HOME /home/container
+USER steam
+ENV  USER steam
+ENV  HOME /home/steam
 
-WORKDIR /home/container
+WORKDIR /home/steam
 RUN /usr/games/steamcmd +quit
 
 FROM steam
@@ -42,9 +42,9 @@ EXPOSE 123/udp
 
 RUN unbuffer /usr/games/steamcmd +login anonymous +force_install_dir /home/steam +app_update 232130 validate +quit
 
-RUN $HOME/Binaries/Win64/KFGameSteamServer.bin.x86_64 & PID=$!;sleep 15;kill -9 $PID
+RUN /home/steam/Binaries/Win64/KFGameSteamServer.bin.x86_64 & PID=$!;sleep 15;kill -9 $PID
 
-ENV SERVER_CONFIGS $HOME/KFGame/Config
+ENV SERVER_CONFIGS /home/steam/KFGame/Config
 ENV ENGINE_INI $SERVER_CONFIGS/LinuxServer-KFEngine.ini
 ENV GAME_INI $SERVER_CONFIGS/LinuxServer-KFGame.ini
 ENV GAME_PASSWORD upnw-ftw
@@ -57,7 +57,6 @@ ENV WORKSHOP_ITEMS 675314991
 RUN mv $ENGINE_INI $ENGINE_INI.bak
 RUN mv $GAME_INI $GAME_INI.bak
 
-COPY ./entrypoint.sh /entrypoint.sh
+ADD kf2 $HOME
 
-CMD ["/bin/bash", "/entrypoint.sh"]
-
+ENTRYPOINT ["/home/steam/kf2"]
